@@ -9,13 +9,14 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Stream;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.RestTemplate;
 
 /**
  *
@@ -26,7 +27,7 @@ import org.springframework.web.client.RestTemplate;
 public class CourseController {
     
     @Autowired
-    private RestTemplate restTemplate;
+    private StudentServiceClient studentServiceClient;
     
     private List<Course> courses = new ArrayList<>();
     
@@ -41,14 +42,25 @@ public class CourseController {
     public List<Student> findStudentsByCoursename(@RequestParam("course-name") String name) {
         List<Student> students = new ArrayList<>();
         Course course = courses.stream().filter(it -> it.getName().equals(name)).findFirst().get();
-        course.getStudentid().forEach((id) -> students.add(restTemplate.getForObject("http://student-service/student/{id}?id="+id, Student.class)));
+        course.getStudentid().forEach((id) -> students.add(studentServiceClient.findById(id)));
         return students;
     }
     
     @GetMapping("/{student-name}")
-    public Stream<Course> findCoursenameByStudent(@RequestParam("student-name") String name) {
-        Student student = restTemplate.getForObject("http://student-service/student/{name}?name="+name, Student.class);
+    public Stream findCoursenameByStudent(@RequestParam("student-name") String name) {
+        Student student = studentServiceClient.findByName(name);
         return courses.stream().filter(it -> it.getStudentid().contains(student.getId()));
     }
+    
+}
+
+@FeignClient("student-service")
+interface StudentServiceClient {
+    
+    @RequestMapping(method = RequestMethod.GET, value = "/student/{id}")
+    Student findById(@RequestParam("id") Long id);
+    
+    @RequestMapping(method = RequestMethod.GET, value = "/student/{name}")
+    Student findByName(@RequestParam("name") String name);
     
 }

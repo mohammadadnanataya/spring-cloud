@@ -34,7 +34,7 @@ public class StudentController {
     public Stream<Student> findByName(@RequestParam("name") String name) {
         return students.stream().filter(it -> it.getName().equals(name));
     }
-
+    
     @PostMapping
     public Student add(@RequestBody Student s) {
         s.setId((long) (students.size() + 1));
