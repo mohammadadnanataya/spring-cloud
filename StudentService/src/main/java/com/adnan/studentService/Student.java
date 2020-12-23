@@ -15,7 +15,8 @@ public class Student {
     private String name;
     private int age;
     private Gender gender;
-    public enum Gender { FEMALE, MALE; }
+    
+    public enum Gender { FEMALE, MALE }
 
     public Long getId() {
         return id;

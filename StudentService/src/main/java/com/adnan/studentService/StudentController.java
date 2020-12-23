@@ -7,12 +7,12 @@ package com.adnan.studentService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.stream.Collectors;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -20,19 +20,19 @@ import org.springframework.web.bind.annotation.RestController;
  * @author ASUS
  */
 @RestController
-@RequestMapping("/student")
+@RequestMapping("/students")
 public class StudentController {
     
     private List<Student> students = new ArrayList<>();
 
-    @GetMapping("/{id}")
-    public Student findById(@RequestParam("id") Long id) {
+    @GetMapping("/student/{id}")
+    public Student findById(@PathVariable("id") Long id) {
         return students.stream().filter(it -> it.getId().equals(id)).findFirst().get();
     }
     
     @GetMapping("/{name}")
-    public Stream<Student> findByName(@RequestParam("name") String name) {
-        return students.stream().filter(it -> it.getName().equals(name));
+    public List<Student> findByName(@PathVariable("name") String name) {
+        return students.stream().filter(it -> it.getName().equals(name)).collect(Collectors.toList());
     }
     
     @PostMapping
